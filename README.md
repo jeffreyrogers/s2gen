@@ -4,7 +4,7 @@ s4gen: S3 Site Generator
 This static site generator is tailored for my use case and I'm not sure how
 useful it will be for others. It is essentially a python script that you copy
 into the directory you want to generate your static site from. It automatically
-creates an ATOM feed for the site as well.
+creates an Atom feed for the site as well.
 
 ## Prequisites and Assumptions
 
