@@ -27,11 +27,11 @@ css rules).
 
 ## Commands
 
-- s4gen.py help             show help message listing available commands
-- s4gen.py init             initialize site directory (does nothing if already initialized)
-- s4gen.py deploy           generate site and deploy to s3
-- s4gen.py generate         generate site (without deploying)
-- s4gen.py serve            serve site files locally to preview site
+- `s4gen.py help`             show help message listing available commands
+- `s4gen.py init`             initialize site directory (does nothing if already initialized)
+- `s4gen.py deploy`           generate site and deploy to s3
+- `s4gen.py generate`         generate site (without deploying)
+- `s4gen.py serve`            serve site files locally to preview site
 
 ## Complementary Libaries
 
