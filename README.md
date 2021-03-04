@@ -14,6 +14,7 @@ recommend doing this with pip in a virtual environment as follows:
 
     python3 -m venv venv
     source venv/bin/activate
+    pip install wheel
     pip install -r requirements.txt
 
 For the aws command line tools your credentials must be configured, and you need

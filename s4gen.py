@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 
 # configuration
-S3_BUCKET_NAME = "replace with your bucket name"
-SITE_NAME = "replace with site name (this goes in the title tag of the html)"
+S3_BUCKET_NAME = "REPLACE-WITH-YOUR-BUCKET"
+SITE_NAME = "EXAMPLE SITE"
+AUTHOR_INFO = {'name': 'YOUR NAME HERE', 'email': 'YOUR_EMAIL@EXAMPLE.COM'}
+FEED_LANGUAGE = 'en'
+SITE_URL = "https://EXAMPLE.COM"
 
 import sys
 import os
 
-import feedgen
+from dateutil.parser import parse
+from dateutil.tz import tzutc
+from feedgen.feed import FeedGenerator
 import jinja2
 import yaml
 
@@ -70,7 +75,6 @@ def generate(prod=False):
     posts = []
     for entry in os.scandir("posts"):
         if entry.is_dir():
-            print(entry.path)
             with open(entry.path + '/index.html', 'r') as f:
                 data = f.read()
 
@@ -100,7 +104,7 @@ def generate(prod=False):
     with open("site/index.html", 'w') as f:
         f.write(finished_homepage)
 
-    print("Compiling ATOM feed...")
+    print("Compiling Atom feed...")
     feed = create_feed(posts)
     with open("site/feed/index.html", 'w') as f:
         f.write(feed)
@@ -113,11 +117,25 @@ def generate(prod=False):
         os.system("postcss static/css/main.css -o site/css/main.css")
 
 def create_feed(posts):
-    # TODO: generate ATOM feed (/feed)
-    # sort posts by date published
-    # keep last 10 posts
-    # generate feed from them
-    return ""
+    fg = FeedGenerator()
+    fg.id(SITE_URL)
+    fg.title(SITE_NAME)
+    fg.author(AUTHOR_INFO)
+    fg.link(href=SITE_URL, rel='alternate')
+    fg.link(href=SITE_URL + '/feed/', rel='self')
+    fg.language(FEED_LANGUAGE)
+
+    sorted_posts = sorted(posts, key = lambda k: parse(k['date']), reverse=True)
+
+    for i in range(min(10, len(sorted_posts))):
+        post = sorted_posts[i]
+        fe = fg.add_entry()
+        fe.id(fg.id() + '/' + post['url'])
+        fe.title(post['title'])
+        fe.link(href=fe.id())
+        fe.published(parse(post['date']).replace(tzinfo=tzutc()))
+
+    return fg.atom_str(pretty=True).decode('utf-8')
 
 def serve():
     os.system("python -m http.server -d site")
