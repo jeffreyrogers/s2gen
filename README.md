@@ -1,4 +1,4 @@
-s4gen: AWS S3 Static Site Generator
+s4gen: S3 Site Generator
 -----------------------------------
 
 This static site generator is tailored for my use case and I'm not sure how
