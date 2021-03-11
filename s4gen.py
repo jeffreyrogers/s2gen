@@ -37,6 +37,7 @@ def main():
     elif command == "generate":
         generate()
     elif command == "serve":
+        generate()
         serve()
 
 def init():
