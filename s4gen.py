@@ -84,11 +84,14 @@ def generate(prod=False):
             head, body = data.split("---")
             headers = yaml.load(head, Loader=yaml.FullLoader)
 
+            parsed_date = parse(headers['date'])
+
             post_data = {
                 'site_title': SITE_NAME,
                 'url': entry.path,
                 'title': headers['title'],
-                'date': headers['date'],
+                'formatted_date': parsed_date.strftime('%b %d, %Y'),
+                'date': parsed_date,
                 'body': body
             }
             posts.append(post_data)
@@ -98,7 +101,7 @@ def generate(prod=False):
             with open("site/" + entry.path + "/index.html", 'w') as f:
                 f.write(finished_post)
 
-    sorted_posts = sorted(posts, key = lambda k: parse(k['date']), reverse=True)
+    sorted_posts = sorted(posts, key = lambda k: k['date'], reverse=True)
 
     print("Compiling home page...")
     home_data = {
@@ -141,7 +144,7 @@ def create_feed(posts):
         fe.id(fg.id() + '/' + post['url'])
         fe.title(post['title'])
         fe.link(href=fe.id())
-        fe.published(parse(post['date']).replace(tzinfo=tzutc()))
+        fe.published(post['date'].replace(tzinfo=tzutc()))
 
     return fg.atom_str(pretty=True).decode('utf-8')
 
