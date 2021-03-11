@@ -9,6 +9,8 @@ SITE_URL = "https://EXAMPLE.COM"
 
 import sys
 import os
+import pathlib
+import datetime
 
 from dateutil.parser import parse
 from dateutil.tz import tzutc
@@ -95,26 +97,33 @@ def generate(prod=False):
             with open("site/" + entry.path + "/index.html", 'w') as f:
                 f.write(finished_post)
 
+    sorted_posts = sorted(posts, key = lambda k: parse(k['date']), reverse=True)
+
     print("Compiling home page...")
     home_data = {
         'site_title': SITE_NAME,
-        'posts': posts
+        'posts': sorted_posts
     }
     finished_homepage = home_template.render(home_data)
     with open("site/index.html", 'w') as f:
         f.write(finished_homepage)
 
     print("Compiling Atom feed...")
-    feed = create_feed(posts)
+    feed = create_feed(sorted_posts)
     with open("site/feed/index.html", 'w') as f:
         f.write(feed)
 
     print("Copying static files...")
-    os.system("cp -R static/* site")
+    os.system('rsync -avr --exclude=css/* static/ site')
+
+    print("Generating CSS...")
     if prod:
         os.system("NODE_ENV=production postcss static/css/main.css -o site/css/main.css")
     else:
-        os.system("postcss static/css/main.css -o site/css/main.css")
+        if not os.path.isfile('./site/css/main.css') or aNewerThanB('./static/css/main.css', './site/css/main.css'):
+            os.system("postcss static/css/main.css -o site/css/main.css")
+        else:
+            print("\tNot generating CSS. Generated CSS already up to date")
 
 def create_feed(posts):
     fg = FeedGenerator()
@@ -125,10 +134,8 @@ def create_feed(posts):
     fg.link(href=SITE_URL + '/feed/', rel='self')
     fg.language(FEED_LANGUAGE)
 
-    sorted_posts = sorted(posts, key = lambda k: parse(k['date']), reverse=True)
-
-    for i in range(min(10, len(sorted_posts))):
-        post = sorted_posts[i]
+    for i in range(min(10, len(posts))):
+        post = posts[i]
         fe = fg.add_entry()
         fe.id(fg.id() + '/' + post['url'])
         fe.title(post['title'])
@@ -139,6 +146,13 @@ def create_feed(posts):
 
 def serve():
     os.system("python -m http.server -d site")
+
+def aNewerThanB(fileA, fileB):
+    file_A_fname = pathlib.Path(fileA)
+    file_A_mtime = datetime.datetime.fromtimestamp(file_A_fname.stat().st_mtime)
+    file_B_fname = pathlib.Path(fileB)
+    file_B_mtime = datetime.datetime.fromtimestamp(file_B_fname.stat().st_mtime)
+    return file_A_mtime > file_B_mtime
 
 home_template = """
 <!doctype html>
@@ -157,7 +171,7 @@ home_template = """
   {% for post in posts %}
   <div>
     <div><a href="/{{post.url}}">{{post.title}}</a></div>
-    <div class="small">{{post.date}}</div>
+    <div>{{post.date}}</div>
   </div>
   {% endfor %}
 </div>
