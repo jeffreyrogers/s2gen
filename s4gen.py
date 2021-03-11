@@ -92,7 +92,7 @@ def generate(prod=False):
                 'title': headers['title'],
                 'formatted_date': parsed_date.strftime('%b %d, %Y'),
                 'date': parsed_date,
-                'body': body
+                'content': body
             }
             posts.append(post_data)
 
