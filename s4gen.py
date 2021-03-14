@@ -20,8 +20,8 @@ import yaml
 
 
 def main():
-    allowed_args = ["help", "init", "deploy", "generate", "serve"]
-    if len(sys.argv) != 2:
+    allowed_args = ["help", "init", "deploy", "generate", "serve", "newpost"]
+    if len(sys.argv) < 2:
         print(help_message)
         sys.exit(0)
     elif sys.argv[1] not in allowed_args:
@@ -39,6 +39,13 @@ def main():
     elif command == "serve":
         generate()
         serve()
+    elif command == "newpost":
+        if len(sys.argv) != 3:
+            print(help_message)
+        else:
+            newPost(sys.argv[2])
+    else:
+        print(help_message)
 
 def init():
     os.system("npm install -D tailwindcss@latest postcss@latest autoprefixer@latest")
@@ -85,6 +92,14 @@ def generate(prod=False):
             headers = yaml.load(head, Loader=yaml.FullLoader)
 
             parsed_date = parse(headers['date'])
+            if 'draft' in headers:
+                draft = headers['draft']
+            else:
+                draft = False
+
+            # skip draft posts when building production version of site
+            if prod and draft:
+                continue
 
             post_data = {
                 'site_title': SITE_NAME,
@@ -92,7 +107,8 @@ def generate(prod=False):
                 'title': headers['title'],
                 'formatted_date': parsed_date.strftime('%b %d, %Y'),
                 'date': parsed_date,
-                'content': body
+                'content': body,
+                'draft': draft
             }
             posts.append(post_data)
 
@@ -158,8 +174,16 @@ def aNewerThanB(fileA, fileB):
     file_B_mtime = datetime.datetime.fromtimestamp(file_B_fname.stat().st_mtime)
     return file_A_mtime > file_B_mtime
 
-home_template = """
-<!doctype html>
+def newPost(url):
+    os.mkdir('posts/' + url)
+    with open('posts/' + url + "/index.html", 'w') as f:
+        f.write('title: ' + url + '\n')
+        f.write('date: ' + datetime.datetime.now().strftime('%b %d, %Y') + '\n')
+        f.write('draft: true\n')
+        f.write('---\n')
+
+
+home_template = """<!doctype html>
 <html>
 <head>
   <title>{{site_title}}</title>
@@ -183,8 +207,8 @@ home_template = """
 </body>
 </html>
 """
-post_template = """
-<!doctype html>
+
+post_template = """<!doctype html>
 <html>
 <head>
   <title>{{title}} | {{site_title}}</title>
@@ -239,6 +263,7 @@ AVAILABLE COMMANDS
 \tdeploy\t\t generate site files and publish site to s3
 \tgenerate\t generate site files (without deploying)
 \tserve\t\t serve site files locally to preview site
+\tnewpost url\t create a new draft post located at /posts/<url>
 """
 
 if __name__ == "__main__":
