@@ -96,6 +96,10 @@ def generate(prod=False):
                 draft = headers['draft']
             else:
                 draft = False
+            if 'footnotes' in headers:
+                footnotes = headers['footnotes']
+            else:
+                footnotes = False
 
             # skip draft posts when building production version of site
             if prod and draft:
@@ -108,7 +112,8 @@ def generate(prod=False):
                 'formatted_date': parsed_date.strftime('%b %d, %Y'),
                 'date': parsed_date,
                 'content': body,
-                'draft': draft
+                'draft': draft,
+                'footnotes': footnotes
             }
             posts.append(post_data)
 
