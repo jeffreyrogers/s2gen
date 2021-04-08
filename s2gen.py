@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
 # configuration
-S3_BUCKET_NAME = "REPLACE-WITH-YOUR-BUCKET"
-SITE_NAME = "EXAMPLE SITE"
-AUTHOR_INFO = {'name': 'YOUR NAME HERE', 'email': 'YOUR_EMAIL@EXAMPLE.COM'}
+SITE_NAME = "Delimited Options"
+AUTHOR_INFO = {'name': 'Jeff Rogers', 'email': 'jeffreyrogers27@gmail.com'}
 FEED_LANGUAGE = 'en'
-SITE_URL = "https://EXAMPLE.COM"
+SITE_URL = "https://delimitedoptions.com"
 
 import sys
 import os
@@ -20,7 +19,7 @@ import yaml
 
 
 def main():
-    allowed_args = ["help", "init", "deploy", "generate", "serve", "newpost"]
+    allowed_args = ["help", "init", "release", "generate", "serve", "newpost"]
     if len(sys.argv) < 2:
         print(help_message)
         sys.exit(0)
@@ -32,8 +31,8 @@ def main():
         print(help_message)
     elif command == "init":
         init()
-    elif command == "deploy":
-        deploy()
+    elif command == "release":
+        generate(True)
     elif command == "generate":
         generate()
     elif command == "serve":
@@ -70,11 +69,6 @@ def init():
     if not os.path.isfile("templates/post.html"):
         with open("templates/post.html", "w") as f:
             f.write(post_template)
-
-def deploy():
-    generate(True)
-    print("Uploading site...")
-    os.system(f"aws s3 sync site s3://{S3_BUCKET_NAME}")
 
 def generate(prod=False):
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
@@ -259,13 +253,13 @@ tailwind_css = """
 @tailwind utilities;
 """
 
-help_message = """s4gen usage:
-\ts4gen command
+help_message = """s2gen usage:
+\ts2gen command
 
 AVAILABLE COMMANDS
 \thelp\t\t display this message
 \tinit\t\t initialize static site directory
-\tdeploy\t\t generate site files and publish site to s3
+\trelease\t\t generate release version of site
 \tgenerate\t generate site files (without deploying)
 \tserve\t\t serve site files locally to preview site
 \tnewpost url\t create a new draft post located at /posts/<url>
