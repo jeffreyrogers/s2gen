@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 # configuration
-SITE_NAME = "Delimited Options"
-AUTHOR_INFO = {'name': 'Jeff Rogers', 'email': 'jeffreyrogers27@gmail.com'}
+SITE_NAME = "EXAMPLE SITE"
+AUTHOR_INFO = {'name': 'YOUR NAME HERE', 'email': 'YOUR_EMAIL@EXAMPLE.COM'}
 FEED_LANGUAGE = 'en'
-SITE_URL = "https://delimitedoptions.com"
+SITE_URL = "https://EXAMPLE.COM"
 
 import sys
 import os
@@ -32,6 +32,7 @@ def main():
     elif command == "init":
         init()
     elif command == "release":
+        init()
         generate(True)
     elif command == "generate":
         generate()
@@ -47,7 +48,7 @@ def main():
         print(help_message)
 
 def init():
-    os.system("npm install -D tailwindcss@latest postcss@latest autoprefixer@latest")
+    os.system("npm install -D tailwindcss@latest postcss@latest postcss-cli autoprefixer@latest")
 
     for d in ["static", "static/css", "static/js", "site", "site/posts", "site/feed",
     "posts", "templates"]:
