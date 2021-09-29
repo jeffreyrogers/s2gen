@@ -50,8 +50,7 @@ def main():
 def init():
     os.system("npm install -D tailwindcss@latest postcss@latest postcss-cli autoprefixer@latest")
 
-    for d in ["static", "static/css", "static/js", "site", "site/posts", "site/feed",
-    "posts", "templates"]:
+    for d in ["static", "static/css", "static/js", "site", "site/posts", "posts", "templates"]:
         if not os.path.isdir(d):
             os.mkdir(d)
 
@@ -130,7 +129,7 @@ def generate(prod=False):
 
     print("Compiling Atom feed...")
     feed = create_feed(sorted_posts)
-    with open("site/feed/index.html", 'w') as f:
+    with open("site/feed.atom", 'w') as f:
         f.write(feed)
 
     print("Copying static files...")
@@ -151,7 +150,7 @@ def create_feed(posts):
     fg.title(SITE_NAME)
     fg.author(AUTHOR_INFO)
     fg.link(href=SITE_URL, rel='alternate')
-    fg.link(href=SITE_URL + '/feed/', rel='self')
+    fg.link(href=SITE_URL + '/feed.atom', rel='self')
     fg.language(FEED_LANGUAGE)
 
     for i in range(min(10, len(posts))):
