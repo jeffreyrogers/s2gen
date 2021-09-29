@@ -5,6 +5,7 @@ SITE_NAME = "EXAMPLE SITE"
 AUTHOR_INFO = {'name': 'YOUR NAME HERE', 'email': 'YOUR_EMAIL@EXAMPLE.COM'}
 FEED_LANGUAGE = 'en'
 SITE_URL = "https://EXAMPLE.COM"
+IMG_URL = "https://EXAMPLE.COM/favicon.ico"
 
 import sys
 import os
@@ -152,6 +153,7 @@ def create_feed(posts):
     fg.link(href=SITE_URL, rel='alternate')
     fg.link(href=SITE_URL + '/feed.atom', rel='self')
     fg.language(FEED_LANGUAGE)
+    fg.image(url=IMG_URL)
 
     for i in range(min(10, len(posts))):
         post = posts[i]
