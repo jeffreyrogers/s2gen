@@ -12,6 +12,7 @@ import os
 import pathlib
 import datetime
 
+from bs4 import BeautifulSoup
 from dateutil.parser import parse
 from dateutil.tz import tzutc
 from feedgen.feed import FeedGenerator
@@ -157,11 +158,13 @@ def create_feed(posts):
 
     for i in range(min(10, len(posts))):
         post = posts[i]
+        content = makeAtomContent(post['content'])
         fe = fg.add_entry()
         fe.id(fg.id() + '/' + post['url'])
         fe.title(post['title'])
         fe.link(href=fe.id())
         fe.published(post['date'].replace(tzinfo=tzutc()))
+        fe.content(content, type="CDATA")
 
     return fg.atom_str(pretty=True).decode('utf-8')
 
@@ -183,6 +186,36 @@ def newPost(url):
         f.write('draft: true\n')
         f.write('---\n')
 
+# In the Atom feed we do not want the footnotes to be dynamic, the way they are for
+# the web and mobile versions. Instead, we want the footnotes to be displayed in brackets
+# (e.g. [1], [2], etc.) and then to be collected in a section at the end of the piece.
+def makeAtomContent(content):
+    soup = BeautifulSoup(content, "html.parser")
+    footnotes = []
+    fn_num = 1
+
+    try:
+        while soup.find("span", class_="footnote"):
+            fn = soup.find("span", class_="footnote")
+            fn.insert_before("[" + str(fn_num) + "]")
+            fn = soup.find("span", class_="footnote").extract()
+            fn.name = "p"
+            print(fn)
+            del fn['class']
+            fn.insert(0, "[" + str(fn_num) + "]: ")
+            fn_num += 1
+            footnotes.append(fn)
+    except Exception as e:
+        pass
+
+    if len(footnotes) > 0:
+        h2 = soup.new_tag("h2")
+        h2.string = "Footnotes"
+        soup.append(h2)
+        for fn in footnotes:
+            soup.append(fn)
+
+    return str(soup)
 
 home_template = """<!doctype html>
 <html>
