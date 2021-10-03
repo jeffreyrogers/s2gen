@@ -200,7 +200,6 @@ def makeAtomContent(content):
             fn.insert_before("[" + str(fn_num) + "]")
             fn = soup.find("span", class_="footnote").extract()
             fn.name = "p"
-            print(fn)
             del fn['class']
             fn.insert(0, "[" + str(fn_num) + "]: ")
             fn_num += 1
